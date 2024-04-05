@@ -1,0 +1,103 @@
+<!-- templates/core/os_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de OS</title>
+    <style>
+        body {
+            background-color: #f0f0f0; /* Color de fondo de la página */
+        }
+
+        h1 {
+            text-align: center; /* Centra el título */
+            color: #333; /* Color del texto del título */
+            margin-top: 20px;
+        }
+
+        .column-container {
+            column-count: 3; /* Puedes ajustar el número de columnas según tus necesidades */
+            column-gap: 20px; /* Espacio entre las columnas */
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .column-container div {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            width: 250px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .todo h2 {
+            background-color: #ffcccc; /* Color de fondo rojo */
+            color: #333; /* Color del texto */
+        }
+
+        .in_process h2 {
+            background-color: #ffffcc; /* Color de fondo amarillo */
+            color: #333; /* Color del texto */
+        }
+
+        .done h2 {
+            background-color: #ccffcc; /* Color de fondo verde */
+            color: #333; /* Color del texto */
+        }
+
+        .column-container div h2 {
+            text-align: center; /* Centra el título de la columna */
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .column-container div ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .column-container div ul li {
+            user-select: auto; /* Permite seleccionar elementos */
+            cursor: pointer; /* Cambia el cursor al pasar sobre los elementos */
+            margin-bottom: 5px;
+            text-align: center; /* Centra el texto del elemento */
+        }
+
+        .start-button {
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            background-color: #007bff; /* Color azul del botón */
+            color: #fff; /* Color del texto */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .start-button:hover {
+            background-color: #0056b3; /* Color azul más oscuro al pasar el ratón */
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de OS</h1>
+
+    <div class="column-container">
+        {% for estado, os_list in os_dict.items %}
+            <div class="{{ estado.lower }}">
+                <h2>{{ estado }}</h2>
+                <ul>
+                    {% for os in os_list %}
+                        <li class="todo-item"><a href="{% url 'detalle_os' os.id %}">{{ os.nombre }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

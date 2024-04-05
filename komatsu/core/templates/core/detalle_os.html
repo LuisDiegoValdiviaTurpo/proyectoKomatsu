@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de OS</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .button-container {
+            text-align: center;
+        }
+
+        .button-container button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #stopPlannedButton, #stopUnplannedButton {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #stopPlannedButton:hover, #stopUnplannedButton:hover {
+            background-color: #0056b3;
+        }
+
+        #finalizarButton {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        #reprogramacionButton {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        #reprogramacionButton:hover {
+            background-color: #0056b3;
+        }
+
+        .green {
+            background-color: #28a745 !important;
+            color: #fff !important;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para el modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .modal-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .modal-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Detalle de Orden de Servicio</h1>
+
+        <h2>Estado de Trabajo</h2>
+        <!-- Selector de estado de trabajo -->
+        <select id="estadoTrabajoSelect">
+            <option value="ARMADO">ARMADO</option>
+            <option value="DESARME">DESARME</option>
+        </select>
+
+        <!-- Sección de Paradas Planificadas -->
+        <div class="section">
+            <h2>Paradas Planificadas</h2>
+            <!-- Selector de motivos para paradas planificadas -->
+            <select id="paradasPlanificadasSelect">
+                <option value="motivo1">Motivo 1</option>
+                <option value="motivo2">Motivo 2</option>
+                <option value="motivo3">Motivo 3</option>
+            </select>
+            <!-- Botón de STOP para paradas planificadas -->
+            <div class="button-container">
+                <button id="stopPlannedButton">STOP</button>
+            </div>
+        </div>
+
+        <!-- Sección de Paradas No Planificadas -->
+        <div class="section">
+            <h2>Paradas No Planificadas</h2>
+            <!-- Selector de motivos para paradas no planificadas -->
+            <select id="paradasNoPlanificadasSelect">
+                <option value="motivo1">Motivo 1</option>
+                <option value="motivo2">Motivo 2</option>
+                <option value="motivo3">Motivo 3</option>
+            </select>
+            <!-- Botón de STOP para paradas no planificadas -->
+            <div class="button-container">
+                <button id="stopUnplannedButton">STOP</button>
+            </div>
+        </div>
+
+        <!-- Botón de finalizar -->
+        <div class="button-container">
+            <button id="finalizarButton">Finalizar</button>
+            <!-- Botón de reprogramación -->
+            <button id="reprogramacionButton" class="modal-button" onclick="openModal()">Reprogramación</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <!-- Contenido del modal -->
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Motivo de Reprogramación</h2>
+            <input type="text" id="reprogramacionMotivo" placeholder="Ingrese el motivo...">
+            <!-- Botón de Aceptar -->
+            <button class="modal-button" onclick="submitReprogramacion()">Aceptar</button>
+        </div>
+    </div>
+
+    <script>
+        const plannedSelect = document.getElementById('paradasPlanificadasSelect');
+        const unplannedSelect = document.getElementById('paradasNoPlanificadasSelect');
+        const togglePlanned = document.getElementById('togglePlanned');
+        const toggleUnplanned = document.getElementById('toggleUnplanned');
+
+        togglePlanned.addEventListener('change', function() {
+            if (this.checked) {
+                plannedSelect.classList.remove('disabled');
+                unplannedSelect.classList.add('disabled');
+                toggleUnplanned.checked = false;
+            } else {
+                plannedSelect.classList.add('disabled');
+            }
+        });
+
+        toggleUnplanned.addEventListener('change', function() {
+            if (this.checked) {
+                unplannedSelect.classList.remove('disabled');
+                plannedSelect.classList.add('disabled');
+                togglePlanned.checked = false;
+            } else {
+                unplannedSelect.classList.add('disabled');
+            }
+        });
+
+        document.getElementById('stopPlannedButton').addEventListener('click', function() {
+            if (this.textContent === 'STOP') {
+                this.textContent = 'REANUDAR';
+                this.classList.add('green');
+            } else {
+                this.textContent = 'STOP';
+                this.classList.remove('green');
+            }
+        });
+
+        document.getElementById('stopUnplannedButton').addEventListener('click', function() {
+            if (this.textContent === 'STOP') {
+                this.textContent = 'REANUDAR';
+                this.classList.add('green');
+            } else {
+                this.textContent = 'STOP';
+                this.classList.remove('green');
+            }
+        });
+
+        function openModal() {
+            document.getElementById('myModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('myModal').style.display = 'none';
+        }
+
+        function submitReprogramacion() {
+            var motivo = document.getElementById('reprogramacionMotivo').value;
+            // Aquí puedes hacer lo que quieras con el motivo, por ejemplo, enviarlo al servidor o guardar en alguna variable
+            // Luego, redirige al usuario a la página os_list
+            window.location.href = '/core/os-list/';
+            closeModal(); // Cierra el modal después de enviar el motivo
+        }
+
+        
+
+    </script>
+</body>
+</html>

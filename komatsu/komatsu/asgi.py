@@ -1,5 +1,5 @@
 """
-ASGI config for proyectoKomatsu project.
+ASGI config for komatsu project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proyectoKomatsu.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'komatsu.settings')
 
 application = get_asgi_application()

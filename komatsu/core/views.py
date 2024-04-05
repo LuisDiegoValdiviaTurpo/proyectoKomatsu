@@ -3,6 +3,33 @@ from django.http import JsonResponse, HttpResponse
 from .models import OS
 from django.views.decorators.csrf import csrf_exempt
 
+
+
+def actualizar_estado_trabajo(request):
+    print("La vista se ha ejecutado correctamente")
+    if request.method == 'POST':
+        print("La vista LLEGO AQUI 01")
+        os_id = request.POST.get('os_id')
+        print("La vista LLEGO AQUI 02")
+        nuevo_estado_trabajo = request.POST.get('nuevo_estado_trabajo')
+        print("La vista LLEGO AQUI 03")
+        try:
+            print("Entra al try")
+            # Obtener el objeto OS y actualizar su estado de trabajo
+            os_obj = OS.objects.get(id=os_id)
+            print("pasas el obj")
+            os_obj.estado_trabajo = nuevo_estado_trabajo
+            os_obj.estado = 'IN_PROCESS'  # Cambiar el estado a IN_PROCESS
+            os_obj.save()
+            return JsonResponse({'success': True})
+        except OS.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'La orden de servicio no existe.'})
+    else:
+        return JsonResponse({'success': False, 'error': 'Método no permitido.'})
+
+
+
+
 def actualizar_os(request):
     if request.method == 'POST':
         motivo = request.POST.get('motivo')
@@ -43,7 +70,7 @@ def detalle_os(request, os_id):
     # os = OS.objects.get(pk=os_id)
 
     # Por ahora, asumamos que no hay lógica adicional y solo renderizamos la página
-    return render(request, 'core/detalle_os.html')
+    return render(request, 'core/detalle_os.html', {'os_id': os_id})
 
 @csrf_exempt
 def update_os_estado_trabajo(request):

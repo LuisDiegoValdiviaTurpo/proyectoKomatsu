@@ -96,6 +96,15 @@
             opacity: 0.5;
         }
 
+        .stop-button {
+            background-color: red;
+            color: white;
+        }
+        .reanudar-button {
+            background-color: green;
+            color: white;
+        }
+
         .section {
             margin-bottom: 20px;
         }
@@ -170,43 +179,43 @@
             <option value="ARMADO">ARMADO</option>
             <option value="DESARME">DESARME</option>
         </select>
-
-        <!-- Sección de Paradas Planificadas -->
-        <div class="section">
-            <h2>Paradas Planificadas</h2>
-            <!-- Selector de motivos para paradas planificadas -->
-            <select id="paradasPlanificadasSelect">
-                <option value="motivo1">Motivo 1</option>
-                <option value="motivo2">Motivo 2</option>
-                <option value="motivo3">Motivo 3</option>
-            </select>
-            <!-- Botón de STOP para paradas planificadas -->
-            <div class="button-container">
-                <button id="stopPlannedButton">STOP</button>
-            </div>
+        <h2>Paradas Planificadas</h2>
+        <div class="button-container">
+            <input type="checkbox" id="togglePlanned" class="toggle-switch">
+            <label for="togglePlanned">Paradas Planificadas</label>
+        </div>
+        <select id="paradasPlanificadasSelect" class="disabled">
+            <option value="motivo1">Motivo 1</option>
+            <option value="motivo2">Motivo 2</option>
+            <option value="motivo3">Motivo 3</option>
+        </select>
+        <div class="button-container">
+            <button id="stopButton1" class="stop-button" onclick="cambiarEstado(this)">STOP</button>
         </div>
 
-        <!-- Sección de Paradas No Planificadas -->
-        <div class="section">
-            <h2>Paradas No Planificadas</h2>
-            <!-- Selector de motivos para paradas no planificadas -->
-            <select id="paradasNoPlanificadasSelect">
-                <option value="motivo1">Motivo 1</option>
-                <option value="motivo2">Motivo 2</option>
-                <option value="motivo3">Motivo 3</option>
-            </select>
-            <!-- Botón de STOP para paradas no planificadas -->
-            <div class="button-container">
-                <button id="stopUnplannedButton">STOP</button>
-            </div>
+        <h2>Paradas No Planificadas</h2>
+        <div class="button-container">
+            <input type="checkbox" id="toggleUnplanned" class="toggle-switch">
+            <label for="toggleUnplanned">Paradas No Planificadas</label>
+        </div>
+        <select id="paradasNoPlanificadasSelect" class="disabled">
+            <option value="motivo1">Motivo 1</option>
+            <option value="motivo2">Motivo 2</option>
+            <option value="motivo3">Motivo 3</option>
+        </select>
+        <div class="button-container">
+            <button id="stopButton1" class="stop-button" onclick="cambiarEstado(this)">STOP</button>
         </div>
 
         <!-- Botón de finalizar -->
         <div class="button-container">
-            <button id="finalizarButton">Finalizar</button>
+            <button id="finalizarButton" data-os-id="{{ os_id }}">Finalizar</button>
             <!-- Botón de reprogramación -->
             <button id="reprogramacionButton" class="modal-button" onclick="openModal()">Reprogramación</button>
         </div>
+
+        <!-- Campo oculto para almacenar el nuevo estado de trabajo -->
+        <input type="hidden" id="nuevoEstadoTrabajo">
     </div>
 
     <!-- Modal -->
@@ -222,7 +231,8 @@
     </div>
 
     <script>
-        const plannedSelect = document.getElementById('paradasPlanificadasSelect');
+
+const plannedSelect = document.getElementById('paradasPlanificadasSelect');
         const unplannedSelect = document.getElementById('paradasNoPlanificadasSelect');
         const togglePlanned = document.getElementById('togglePlanned');
         const toggleUnplanned = document.getElementById('toggleUnplanned');
@@ -247,26 +257,25 @@
             }
         });
 
-        document.getElementById('stopPlannedButton').addEventListener('click', function() {
-            if (this.textContent === 'STOP') {
-                this.textContent = 'REANUDAR';
-                this.classList.add('green');
-            } else {
-                this.textContent = 'STOP';
-                this.classList.remove('green');
-            }
-        });
 
-        document.getElementById('stopUnplannedButton').addEventListener('click', function() {
-            if (this.textContent === 'STOP') {
-                this.textContent = 'REANUDAR';
-                this.classList.add('green');
-            } else {
-                this.textContent = 'STOP';
-                this.classList.remove('green');
-            }
-        });
 
+
+
+        function cambiarEstado(button) {
+            if (button.textContent === 'STOP') {
+                // Cambiar el texto del botón a "REANUDAR"
+                button.textContent = 'REANUDAR';
+                // Cambiar la clase del botón para cambiar el color
+                button.classList.remove('stop-button');
+                button.classList.add('reanudar-button');
+            } else {
+                // Cambiar el texto del botón a "STOP"
+                button.textContent = 'STOP';
+                // Cambiar la clase del botón para cambiar el color
+                button.classList.remove('reanudar-button');
+                button.classList.add('stop-button');
+            }
+        }
         function openModal() {
             document.getElementById('myModal').style.display = 'block';
         }
@@ -283,8 +292,64 @@
             closeModal(); // Cierra el modal después de enviar el motivo
         }
 
-        
+        // Función para manejar el clic en el botón de finalizar
+        function handleFinalizarClick() {
+            // Obtener el ID del elemento actual
+            var osId = this.getAttribute('data-os-id');
 
+            console.log('Valor de nuevoEstadoTrabajo:', osId);
+
+            // Obtener el nuevo estado de trabajo seleccionado
+            var nuevoEstadoTrabajo = document.getElementById('estadoTrabajoSelect').value;
+
+            console.log('Valor de nuevoEstadoTrabajo:', nuevoEstadoTrabajo);
+
+            // Establecer el nuevo estado de trabajo en el campo oculto
+            document.getElementById('nuevoEstadoTrabajo').value = nuevoEstadoTrabajo;
+
+            // Enviar los datos a la vista de Django
+            fetch('/core/actualizar_estado_trabajo/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken') // Obtener el token CSRF
+                },
+                body: JSON.stringify({
+                    os_id: osId,
+                    nuevo_estado_trabajo: nuevoEstadoTrabajo
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Redirigir al usuario a la página os_list
+                    window.location.href = '/core/os-list/';
+                } else {
+                    console.error('Error al actualizar el estado de trabajo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error al enviar la solicitud al servidor:', error);
+            });
+        }
+
+        // Agregar el event listener cuando el documento esté completamente cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('finalizarButton').addEventListener('click', handleFinalizarClick);
+        });
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
     </script>
 </body>
 </html>

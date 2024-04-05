@@ -17,7 +17,7 @@ def actualizar_estado_trabajo(request):
             print("Entra al try")
             # Obtener el objeto OS y actualizar su estado de trabajo
             os_obj = OS.objects.get(id=os_id)
-            print("pasas el obj")
+            print("pasas el obj"+os_obj)
             os_obj.estado_trabajo = nuevo_estado_trabajo
             os_obj.estado = 'IN_PROCESS'  # Cambiar el estado a IN_PROCESS
             os_obj.save()
